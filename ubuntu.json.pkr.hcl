@@ -26,12 +26,13 @@ variable "initrd" {
 
 variable "iso_checksum_type" {
   type    = string
-  default = "sha1"
+  default = "sha256"
 }
 
-variable "iso_checksum_url" {
+variable "iso_checksum_string" {
   type    = string
-  default = "http://cdimage.ubuntu.com/ubuntu-legacy-server/releases/20.04.1/release/SHA256SUMS"
+  default = "sha256:f11bda2f2caed8f420802b59f382c25160b114ccc665dbac9c5046e7fceaced2"
+  # default = "http://cdimage.ubuntu.com/ubuntu-legacy-server/releases/20.04.1/release/SHA256SUMS"
 }
 
 variable "iso_url" {
@@ -99,7 +100,7 @@ source "hyperv-iso" "hviso" {
   generation           = 2
   guest_additions_mode = "disable"
   http_directory       = "preseed"
-  iso_checksum         = "file:${var.iso_checksum_url}"
+  iso_checksum         = "${var.iso_checksum_string}"
   iso_url              = "${var.iso_url}"
   memory               = "${var.ram_size}"
   output_directory     = "${var.output_directory}"
@@ -119,7 +120,7 @@ source "virtualbox-iso" "vbiso" {
   disk_size        = "${var.disk_size}"
   guest_os_type    = "Ubuntu_64"
   http_directory   = "preseed"
-  iso_checksum     = "file:${var.iso_checksum_url}"
+  iso_checksum     = "${var.iso_checksum_string}"
   iso_url          = "${var.iso_url}"
   memory           = "${var.ram_size}"
   output_directory = "${var.output_directory}"
