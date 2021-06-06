@@ -54,3 +54,8 @@ In keeping with my project goals above, Ubuntu 20.04 x64 and Windows 10 x64 (200
 
 ## Troubleshooting
 The build script has a -debug option which sets some packer options to aid in debugging faulty templates. Start with the generated log file: packer-log.txt
+
+## AoB - Infra - Ubuntu20
+
+set environment variable: PACKER_CACHE_DIR=E:\tukks\packer_cache  ??
+Run with: packer build --debug -only=hyperv-iso.hviso ubuntu.json.pkr.hcl

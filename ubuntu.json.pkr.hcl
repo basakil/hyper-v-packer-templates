@@ -16,7 +16,7 @@ variable "disk_size" {
 
 variable "hyperv_switchname" {
   type    = string
-  default = "${env("hyperv_switchname")}"
+  default = "Default Switch"
 }
 
 variable "initrd" {
@@ -31,13 +31,15 @@ variable "iso_checksum_type" {
 
 variable "iso_checksum_string" {
   type    = string
-  default = "sha256:f11bda2f2caed8f420802b59f382c25160b114ccc665dbac9c5046e7fceaced2"
+  # default = "sha256:f11bda2f2caed8f420802b59f382c25160b114ccc665dbac9c5046e7fceaced2"
   # default = "http://cdimage.ubuntu.com/ubuntu-legacy-server/releases/20.04.1/release/SHA256SUMS"
+  default = "sha256:d1f2bf834bbe9bb43faf16f9be992a6f3935e65be0edece1dee2aa6eb1767423"
 }
 
 variable "iso_url" {
   type    = string
-  default = "http://cdimage.ubuntu.com/ubuntu-legacy-server/releases/20.04.1/release/ubuntu-20.04.1-legacy-server-amd64.iso"
+  # default = "http://cdimage.ubuntu.com/ubuntu-legacy-server/releases/20.04.1/release/ubuntu-20.04.1-legacy-server-amd64.iso"
+  default = "https://releases.ubuntu.com/20.04/ubuntu-20.04.2-live-server-amd64.iso"
 }
 
 variable "keyboard_layout" {
@@ -62,12 +64,7 @@ variable "output_directory" {
 
 variable "output_name" {
   type    = string
-  default = "ubuntu-focal"
-}
-
-variable "password" {
-  type    = string
-  default = "vagrant"
+  default = "ubuntu-20-packer"
 }
 
 variable "ram_size" {
@@ -77,12 +74,17 @@ variable "ram_size" {
 
 variable "username" {
   type    = string
-  default = "vagrant"
+  default = "ubuntu"
+}
+
+variable "password" {
+  type    = string
+  default = "ubuntu"
 }
 
 variable "vm_name" {
   type    = string
-  default = "ubuntu-focal"
+  default = "ubuntu-20-packer"
 }
 
 variable "vmlinuz" {
@@ -90,8 +92,21 @@ variable "vmlinuz" {
   default = "/install/vmlinuz"
 }
 
+variable "ubuntu_2004_boot_command" {
+  type    = list(string)
+  default = [
+          "<esc><esc><esc>",
+          "set gfxpayload=keep<enter>",
+          "linux /casper/vmlinuz ",
+          "\"ds=nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/\" ",
+          "quiet autoinstall ---<enter>",
+          "initrd /casper/initrd<enter>",
+          "boot<enter>"
+        ]
+}
+
 source "hyperv-iso" "hviso" {
-  boot_command         = ["<esc><wait5>", "linux ${var.vmlinuz} ", "auto ", "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg ", "debian-installer=${var.locale} ", "locale=${var.locale} ", "hostname={{ .Name }} ", "fb=false ", "debconf/frontend=noninteractive ", "passwd/user-fullname=${var.username} ", "passwd/username=${var.username} ", "passwd/user-password=${var.password} ", "passwd/user-password-again=${var.password} ", "console-setup/ask_detect=false ", "keymap=${var.keyboard_variant} ", "kbd-chooser/method=${var.keyboard_variant} ", "keyboard-configuration/layout=${var.keyboard_layout} ", "keyboard-configuration/variant=${var.keyboard_layout} ", "tasksel=ubuntu-desktop ", "<enter>", "initrd ${var.initrd}<enter>", "boot<enter>"]
+  boot_command         = [ "<enter><enter><f6><esc><wait> ", "autoinstall ds=nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/", "<enter>" ]
   boot_wait            = "0s"
   communicator         = "ssh"
   cpus                 = "${var.cpu}"
@@ -99,15 +114,17 @@ source "hyperv-iso" "hviso" {
   enable_secure_boot   = false
   generation           = 2
   guest_additions_mode = "disable"
-  http_directory       = "preseed"
+  # http_directory       = "preseed"
+  http_directory       = "http"
   iso_checksum         = "${var.iso_checksum_string}"
   iso_url              = "${var.iso_url}"
   memory               = "${var.ram_size}"
   output_directory     = "${var.output_directory}"
-  shutdown_command     = "echo '${var.username}' | sudo -S -E shutdown -P now"
-  ssh_password         = "${var.password}"
+  shutdown_command     = "echo '${var.password}' | sudo -S -E shutdown -P now"
   ssh_timeout          = "4h"
   ssh_username         = "${var.username}"
+  ssh_password         = "${var.password}"
+  # ssh_handshake_attempts = "20",  ## ??
   switch_name          = "${var.hyperv_switchname}"
   vm_name              = "${var.vm_name}"
 }
