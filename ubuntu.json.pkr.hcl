@@ -95,19 +95,23 @@ variable "vmlinuz" {
 variable "ubuntu_2004_boot_command" {
   type    = list(string)
   default = [
-          "<esc><esc><esc>",
-          "set gfxpayload=keep<enter>",
-          "linux /casper/vmlinuz ",
-          "\"ds=nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/\" ",
-          "quiet autoinstall ---<enter>",
-          "initrd /casper/initrd<enter>",
-          "boot<enter>"
+          "<esc><wait>",
+          "<esc><wait2s>",
+          "<esc><wait>",
+          "<esc><wait2s>",
+          "<esc><wait>",
+          "<esc><wait2s>",
+          "set gfxpayload=keep<wait><enter><wait>",
+          "linux /casper/vmlinuz autoinstall ",
+          "ds=nocloud-net\\;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ ---<wait><enter><wait>",
+          "initrd /casper/initrd<wait><enter><wait>",
+          "boot<enter><wait>"
         ]
 }
 
 source "hyperv-iso" "hviso" {
-  boot_command         = [ "<enter><enter><f6><esc><wait> ", "autoinstall ds=nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/", "<enter>" ]
-  boot_wait            = "0s"
+  boot_command         = var.ubuntu_2004_boot_command
+  boot_wait            = "4s"
   communicator         = "ssh"
   cpus                 = "${var.cpu}"
   disk_size            = "${var.disk_size}"

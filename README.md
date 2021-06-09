@@ -57,5 +57,16 @@ The build script has a -debug option which sets some packer options to aid in de
 
 ## AoB - Infra - Ubuntu20
 
-set environment variable: PACKER_CACHE_DIR=E:\tukks\packer_cache  ??
+run http server (for tests) , if not using packer:
+python -m http.server --bind 0.0.0.0 8333 --directory hyper-v-packer-templates/http/
+
+set environment variable: set PACKER_CACHE_DIR=%USERPROFILE%\tukks\scope-infra\packer\packer_cache  ??
 Run with: packer build --debug -only=hyperv-iso.hviso ubuntu.json.pkr.hcl
+
+set gfxpayload=keep
+linux /casper/vmlinuz autoinstall ds=nocloud-net\;s=http://172.20.144.1:8333/ ---
+initrd /casper/initrd
+boot
+
+# debug:
+dhcp ip: eth0: 172.20.144.177/20  brd: 172.20.159.255
